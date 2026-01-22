@@ -3,121 +3,280 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>모두의 학생부종합전형 평가 가상 화면</title>
-  <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>모두의 학생부종합전형 평가 가상 화면(학생·학부모 연수용)</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
-
 <body>
 
 <header class="topbar">
-  <h1>모두의 학생부종합전형 평가 가상 화면 (학생·학부모 연수용)</h1>
-
-  <div class="notice">
-    이 화면은 대학별 학생부종합전형 가이드북에 제시된 평가 사례와 강조 요소,
-    입학사정관 평가 피드백, GPT 기반 이미지·구조 분석 등을 토대로<br>
-    <b>“만약 내가 입학사정관이라면 이런 화면이 필요하지 않을까”</b>라는 관점에서 구성한
-    <b>허구의 학생부종합전형 평가 시뮬레이션</b>입니다.<br><br>
-
-    실제 대학의 평가 시스템이나 특정 대학의 전형 결과와는 무관하며,
-    화면에 제시된 학생·사례·수치·평가 결과는 모두 <b>가상 예시</b>입니다.<br><br>
-
-    학생·학부모를 위해 제작된 체험용 화면이지만,
-    실제 학생부종합전형에서 중요하게 평가되는 요소들이 담겨 있으므로
-    체험을 통해 <b>무엇을 준비하고 어떻게 설계해야 할지</b> 점검해 보시기 바랍니다.
+  <div class="topbar__title">
+    <h1>모두의 학생부종합전형 평가 가상 화면(학생, 학부모 연수용)</h1>
+    <div class="topbar__copyright">Copyright © All Teachers (화천고 박상근)</div>
   </div>
 
-  <div class="applicant">
-    지원자 : <b>모두의 고등학교 · 예비 고3 · 박모두</b>
-  </div>
+  <div class="topbar__notice">
+    <div class="noticeBox">
+      <b>안내</b><br>
+      본 화면은 대학별 학생부종합전형가이드북에 제시된 사례의 강조점, 입학사정관 평가 피드백, GPT 이미지·구조 분석 등을 토대로,
+      <b>“내가 입학사정관이라면 어떤 화면이 필요할까”</b>라는 관점에서 구성한 <b>허구의 평가 시뮬레이션</b>입니다.<br><br>
+      실제 대학의 평가 시스템이나 특정 대학의 전형 결과와는 무관하며, 화면에 제시된 학생·사례·수치·평가 결과는 모두 <b>가상 예시</b>입니다.<br><br>
+      학생·학부모를 위해 가상으로 만들었으나, 학생부종합전형에 중요한 요소들이므로 체험하시면서
+      <b>무엇을 준비해야 할지</b>를 스스로 설계해 보세요.
+    </div>
 
-  <div class="copyright">
-    Copyright © All Teachers (화천고 박상근)
+    <div class="topbar__meta">
+      <div class="pill" id="applicantLine">지원자 : 로딩중…</div>
+      <div class="pill pill--ghost">체험판(로컬 저장 지원)</div>
+    </div>
   </div>
 </header>
 
 <main class="layout">
 
-  <!-- LEFT -->
-  <section class="panel left">
-    <h2>학생부 탐색</h2>
+  <!-- LEFT: Full record-like view -->
+  <aside class="panel panel--left">
+    <div class="panelHeader">
+      <div class="panelTitle">생활기록부 원문(가상)</div>
+      <div class="panelDesc">좌측은 “원문 보기(PDF 느낌)”, 가운데는 “요약/분석”, 우측은 “평가/메모”입니다.</div>
+    </div>
 
-    <input id="keyword" placeholder="키워드 검색 (예: 미분, 탐구, 협업)" />
+    <div class="card">
+      <div class="cardTitle cardTitle--row">
+        <span>키워드 검색</span>
+        <span class="small">세특·창체·행발 하이라이트</span>
+      </div>
+      <input id="keywordInput" class="input" placeholder="예: 미분 / 모델링 / 오차 / 협업 / 근거 / 전공 / 프로젝트" />
+      <div class="hint">입력하면 좌측 원문·세특 목록에 노란색 강조가 적용됩니다.</div>
+    </div>
 
-    <h3>과목 선택 (체크 → 그래프 반영)</h3>
-    <div id="subjectChecks"></div>
+    <div class="card">
+      <div class="cardTitle cardTitle--row">
+        <span>모집단위(기준 전환)</span>
+        <span class="small">핵심과목·평가축 자동</span>
+      </div>
+      <select id="majorSelect" class="select"></select>
+      <div class="divider"></div>
 
-    <h3>세부능력 및 특기사항</h3>
-    <div id="sepecList"></div>
+      <div class="cardTitle">학생 선택(비교용)</div>
+      <div class="row">
+        <select id="candidateSelect" class="select"></select>
+        <button class="btn" id="btnLoadCandidate">불러오기</button>
+      </div>
+      <div class="hint">비교 모드(우측)에서 다른 학생과 나란히 볼 수도 있습니다.</div>
+    </div>
 
-    <h3>세특 비교</h3>
-    <select id="compareA"></select>
-    <select id="compareB"></select>
-    <div id="compareBox"></div>
+    <div class="record">
+      <section class="recordSection" id="secOverview">
+        <div class="recordHeader">
+          <span class="recordTitle">1. 학교 정보·학적(인적 제외)</span>
+          <span class="miniTag" id="activeTermTag">학기 선택: 전체</span>
+        </div>
+        <div id="recordOverview" class="recordBody"></div>
+      </section>
+
+      <section class="recordSection" id="secCurriculum">
+        <div class="recordHeader">
+          <span class="recordTitle">2. 교육과정 이수 내역(가상)</span>
+          <span class="miniTag">과목 이수/권장 자동 확인</span>
+        </div>
+        <div id="recordCurriculum" class="recordBody"></div>
+      </section>
+
+      <section class="recordSection" id="secGrades">
+        <div class="recordHeader">
+          <span class="recordTitle">3. 교과학습발달상황(가상)</span>
+          <span class="miniTag">원점수·평균·성취도·A비율·수강자</span>
+        </div>
+        <div class="tableWrap">
+          <table id="recordGradesTable" class="table table--record"></table>
+        </div>
+      </section>
+
+      <section class="recordSection" id="secSepec">
+        <div class="recordHeader">
+          <span class="recordTitle">4. 세부능력 및 특기사항(가상·장문)</span>
+          <span class="miniTag">과목/학기 클릭→연동</span>
+        </div>
+        <div id="recordSepec" class="recordBody"></div>
+      </section>
+
+      <section class="recordSection" id="secCA">
+        <div class="recordHeader">
+          <span class="recordTitle">5. 창의적 체험활동(가상)</span>
+          <span class="miniTag">자율·동아리·진로</span>
+        </div>
+        <div id="recordCA" class="recordBody"></div>
+      </section>
+
+      <section class="recordSection" id="secBehavior">
+        <div class="recordHeader">
+          <span class="recordTitle">6. 행동특성 및 종합의견(가상)</span>
+          <span class="miniTag">공동체역량 근거</span>
+        </div>
+        <div id="recordBehavior" class="recordBody"></div>
+      </section>
+    </div>
+  </aside>
+
+  <!-- CENTER: One-screen analytics -->
+  <section class="panel panel--center">
+    <div class="panelHeader">
+      <div class="panelTitle">요약·비교 분석</div>
+      <div class="panelDesc">학기/과목/키워드/핵심과목/역량 평가가 한 화면에서 연결되도록 구성했습니다.</div>
+    </div>
+
+    <div class="centerGrid">
+
+      <div class="card">
+        <div class="cardTitle cardTitle--row">
+          <span>학기별 등급추이(소형)</span>
+          <span id="growthBadge" class="badge"></span>
+        </div>
+        <div class="chartBox chartBox--mini">
+          <canvas id="miniTrend"></canvas>
+        </div>
+        <div class="hint">그래프 점(학기)을 클릭하면 해당 학기 기록이 좌측/세특목록에 강조됩니다.</div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle cardTitle--row">
+          <span>선택 과목 조합(체크) 평균 추이</span>
+          <span id="comboBadge" class="badge badge--soft"></span>
+        </div>
+        <div class="chartBox chartBox--combo">
+          <canvas id="comboTrend"></canvas>
+        </div>
+        <div class="miniLegend">
+          <span><i class="dot dot--main"></i> 학생(조합 평균)</span>
+          <span><i class="dot dot--ref"></i> 유사집단 평균(예시)</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle cardTitle--row">
+          <span>성취도 시각화(육각형·레이다)</span>
+          <span class="small">A=4, B=3, C=2, D=1</span>
+        </div>
+        <div class="chartBox chartBox--radar">
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle cardTitle--row">
+          <span>과목 성취도 분포(예시)</span>
+          <span class="small">A/B/C 비율 + 수강자</span>
+        </div>
+        <div class="chartBox chartBox--dist">
+          <canvas id="distChart"></canvas>
+        </div>
+        <div class="hint">세특 목록에서 과목을 클릭하면 해당 과목 분포가 강조됩니다.</div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle cardTitle--row">
+          <span>학기별 요약 표</span>
+          <span class="small">평균대비 자동 강조</span>
+        </div>
+        <div class="tableWrap">
+          <table id="termTable" class="table"></table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle cardTitle--row">
+          <span>핵심과목 이수 여부(자동 판정)</span>
+          <span id="coreSummary" class="badge"></span>
+        </div>
+        <div class="tableWrap">
+          <table id="coreTable" class="table"></table>
+        </div>
+        <div id="coreWarn" class="warnBox"></div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle">세특 미리보기</div>
+        <div id="sepecPreview" class="note"></div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle">세특 비교(2과목)</div>
+        <div class="compareRow">
+          <select id="compareA" class="select"></select>
+          <select id="compareB" class="select"></select>
+        </div>
+        <div id="sepecCompare" class="compare"></div>
+      </div>
+
+    </div>
   </section>
 
-  <!-- CENTER -->
-  <section class="panel center">
-    <h2>성취·비교 요약</h2>
-
-    <div class="card">
-      <h3>학기별 등급추이</h3>
-      <canvas id="trendChart"></canvas>
+  <!-- RIGHT: Evaluation -->
+  <aside class="panel panel--right">
+    <div class="panelHeader">
+      <div class="panelTitle">입학사정관 평가(체험)</div>
+      <div class="panelDesc">A/B/C/D 클릭 + 키워드 탐색 + 리스크 요약 + 메모 저장(로컬)</div>
     </div>
 
     <div class="card">
-      <h3>선택 과목 조합 평균 추이</h3>
-      <canvas id="comboChart"></canvas>
+      <div class="cardTitle cardTitle--row">
+        <span>정량 요약(예시)</span>
+        <span class="small">자동 계산</span>
+      </div>
+      <div id="kpiGrid" class="kpis"></div>
     </div>
 
     <div class="card">
-      <h3>핵심과목 이수 여부</h3>
-      <table id="coreTable"></table>
+      <div class="cardTitle">역량 평가 (A/B/C/D)</div>
+      <div class="rubric" id="rubricBox"></div>
+
+      <div class="divider"></div>
+
+      <div class="risk">
+        <div class="riskTitle">위험요소 체크</div>
+        <label class="check"><input type="checkbox" data-risk="core" /> 전공 핵심과목 부족</label>
+        <label class="check"><input type="checkbox" data-risk="flat" /> 성취 추이 정체/하락</label>
+        <label class="check"><input type="checkbox" data-risk="oneoff" /> 탐구 연속성 부족</label>
+        <label class="check"><input type="checkbox" data-risk="common" /> 공통문구 가능성</label>
+      </div>
+
+      <div id="riskSummary" class="summary"></div>
     </div>
 
     <div class="card">
-      <h3>세특 미리보기</h3>
-      <div id="preview"></div>
-    </div>
-  </section>
-
-  <!-- RIGHT -->
-  <section class="panel right">
-    <h2>입학사정관 평가</h2>
-
-    <h3>역량 평가 (A/B/C/D)</h3>
-
-    <div class="eval">
-      학업역량:
-      <button onclick="setScore(0,'A')">A</button>
-      <button onclick="setScore(0,'B')">B</button>
-      <button onclick="setScore(0,'C')">C</button>
-      <button onclick="setScore(0,'D')">D</button>
+      <div class="cardTitle cardTitle--row">
+        <span>평가 의견(메모)</span>
+        <div class="rightTools">
+          <button class="btn btn--small" id="btnPhrase1">자동문구1</button>
+          <button class="btn btn--small" id="btnPhrase2">자동문구2</button>
+          <button class="btn btn--small" id="btnPhrase3">자동문구3</button>
+        </div>
+      </div>
+      <textarea id="memo" class="textarea" placeholder="사정관 평가 의견을 입력하세요."></textarea>
+      <div class="row">
+        <button class="btn" id="btnClear">초기화</button>
+        <button class="btn btn--primary" id="btnSave">저장(로컬)</button>
+      </div>
+      <div class="hint">※ 저장은 이 브라우저/기기 localStorage에만 저장됩니다.</div>
     </div>
 
-    <div class="eval">
-      진로역량:
-      <button onclick="setScore(1,'A')">A</button>
-      <button onclick="setScore(1,'B')">B</button>
-      <button onclick="setScore(1,'C')">C</button>
-      <button onclick="setScore(1,'D')">D</button>
+    <div class="card">
+      <div class="cardTitle cardTitle--row">
+        <span>비교 모드(샘플 2명)</span>
+        <span class="small">나란히 비교</span>
+      </div>
+      <div class="row">
+        <select id="compareCandidate" class="select"></select>
+        <button class="btn" id="toggleCompare">비교 보기</button>
+      </div>
+      <div id="comparePanel" class="comparePanel hidden"></div>
     </div>
-
-    <div class="eval">
-      공동체역량:
-      <button onclick="setScore(2,'A')">A</button>
-      <button onclick="setScore(2,'B')">B</button>
-      <button onclick="setScore(2,'C')">C</button>
-      <button onclick="setScore(2,'D')">D</button>
-    </div>
-
-    <canvas id="radarChart"></canvas>
-
-    <textarea id="memo" placeholder="입학사정관 평가 의견을 입력하세요."></textarea>
-  </section>
+  </aside>
 
 </main>
 
-<script src="app.js"></script>
+<script src="./data.js"></script>
+<script src="./app.js"></script>
 </body>
 </html>
