@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>모두의 학생부종합전형 평가 화면</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+  font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  background: #f4f6fa;
+  margin: 0;
+}
+header {
+  background: linear-gradient(135deg, #2b5876, #4e4376);
+  color: white;
+  padding: 24px;
+}
+header h1 { margin: 0; }
+header p { font-size: 13px; opacity: 0.9; }
+
+.tabs {
+  display: flex;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+.tabs button {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+.tabs button.active {
+  border-bottom: 3px solid #4e4376;
+  color: #4e4376;
+}
+
+.content {
+  padding: 24px;
+  display: none;
+}
+.content.active {
+  display: block;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.ok { background: #d4edda; color: #155724; }
+.warn { background: #fff3cd; color: #856404; }
+
+textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>모두의 학생부종합전형 평가 화면</h1>
+  <p>Copyright © All Teachers (화천고 박상근)<br>
+     참고: 대학별 학생부종합전형 가이드북, 입학사정관 평가 피드백, ChatGPT 분석</p>
+</header>
+
+<div class="tabs">
+  <button class="active" onclick="openTab(0)">교과 성취 추이</button>
+  <button onclick="openTab(1)">과목 이수 현황</button>
+  <button onclick="openTab(2)">세부능력 및 특기사항</button>
+  <button onclick="openTab(3)">창의적 체험활동</button>
+  <button onclick="openTab(4)">입학사정관 평가</button>
+</div>
+
+<!-- 1. 교과 성취 -->
+<div class="content active">
+  <div class="card">
+    <h3>학기별 교과 성취 추이 (국영수)</h3>
+    <canvas id="gradeChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>학기별 등급 표</h3>
+    <table>
+      <tr><th>학기</th><th>국영수 평균</th><th>계열 평균</th></tr>
+      <tr><td>1-1</td><td>2.6</td><td>3.4</td></tr>
+      <tr><td>1-2</td><td>2.3</td><td>3.2</td></tr>
+      <tr><td>2-1</td><td>2.0</td><td>3.1</td></tr>
+      <tr><td>2-2</td><td>1.8</td><td>3.0</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 2. 과목 이수 -->
+<div class="content">
+  <div class="card">
+    <h3>전공 관련 과목 이수 현황</h3>
+    <table>
+      <tr><th>과목</th><th>이수 여부</th></tr>
+      <tr><td>미적분</td><td><span class="badge ok">이수</span></td></tr>
+      <tr><td>확률과 통계</td><td><span class="badge ok">이수</span></td></tr>
+      <tr><td>기하</td><td><span class="badge warn">미이수</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 3. 세특 -->
+<div class="content">
+  <div class="card">
+    <h3>수학 세부능력 및 특기사항 (샘플)</h3>
+    <p>
+      함수의 증가·감소 조건을 그래프와 미분 개념을 활용해 분석함.
+      실생활 자료를 적용한 탐구 보고서에서 논리적 전개가 돋보였으며,
+      추가 심화 문제를 자발적으로 탐색하는 태도를 보임.
+    </p>
+    <h4>행동발달 종합 의견</h4>
+    <p>
+      협업 활동에서 토론을 주도하며 타인의 의견을 조율하는 태도가 우수함.
+    </p>
+  </div>
+</div>
+
+<!-- 4. 창체 -->
+<div class="content">
+  <div class="card">
+    <h3>자율활동</h3>
+    <p>교내 수학 탐구 발표대회 기획 및 운영 참여</p>
+  </div>
+  <div class="card">
+    <h3>동아리활동</h3>
+    <p>수학·과학 융합 동아리에서 모델링 프로젝트 수행</p>
+  </div>
+  <div class="card">
+    <h3>진로활동</h3>
+    <p>공학계열 진로 탐색 후 교과 선택 전략 수립</p>
+  </div>
+</div>
+
+<!-- 5. 평가 -->
+<div class="content">
+  <div class="card">
+    <h3>입학사정관 평가</h3>
+    <p>학업역량:
+      <input type="radio" name="a">우수
+      <input type="radio" name="a">보통
+      <input type="radio" name="a">미흡
+    </p>
+    <p>진로역량:
+      <input type="radio" name="b">우수
+      <input type="radio" name="b">보통
+      <input type="radio" name="b">미흡
+    </p>
+    <textarea placeholder="종합 평가 의견을 입력하세요."></textarea>
+  </div>
+</div>
+
+<script>
+function openTab(n) {
+  document.querySelectorAll('.content').forEach((c,i)=>{
+    c.classList.toggle('active', i===n);
+  });
+  document.querySelectorAll('.tabs button').forEach((b,i)=>{
+    b.classList.toggle('active', i===n);
+  });
+}
+
+new Chart(document.getElementById("gradeChart"), {
+  type: "line",
+  data: {
+    labels: ["1-1","1-2","2-1","2-2"],
+    datasets: [{
+      label: "국영수 평균",
+      data: [2.6,2.3,2.0,1.8],
+      borderColor: "#4e4376",
+      fill: false
+    }]
+  }
+});
+</script>
+
+</body>
+</html>
