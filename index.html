@@ -1,203 +1,195 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>모두의 학생부종합전형 평가 화면</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-body {
-  font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
-  background: #f4f6fa;
-  margin: 0;
-}
-header {
-  background: linear-gradient(135deg, #2b5876, #4e4376);
-  color: white;
-  padding: 24px;
-}
-header h1 { margin: 0; }
-header p { font-size: 13px; opacity: 0.9; }
-
-.tabs {
-  display: flex;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
-}
-.tabs button {
-  flex: 1;
-  padding: 14px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-weight: 600;
-}
-.tabs button.active {
-  border-bottom: 3px solid #4e4376;
-  color: #4e4376;
-}
-
-.content {
-  padding: 24px;
-  display: none;
-}
-.content.active {
-  display: block;
-}
-
-.card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  text-align: center;
-}
-
-.badge {
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-}
-.ok { background: #d4edda; color: #155724; }
-.warn { background: #fff3cd; color: #856404; }
-
-textarea {
-  width: 100%;
-  height: 100px;
-  padding: 10px;
-}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>모두의 학생부종합전형 평가 화면 만들어보기</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
+  <header class="topbar">
+    <div class="topbar__title">
+      <h1>모두의 학생부종합전형 평가 화면 만들어보기</h1>
+      <div class="topbar__sub">Copyright@All Teachers (화천고 박상근)</div>
+    </div>
 
-<header>
-  <h1>모두의 학생부종합전형 평가 화면</h1>
-  <p>Copyright © All Teachers (화천고 박상근)<br>
-     참고: 대학별 학생부종합전형 가이드북, 입학사정관 평가 피드백, ChatGPT 분석</p>
-</header>
+    <div class="topbar__meta">
+      <div class="pill">평가 모드: 체험용(샘플)</div>
+      <div class="pill pill--ghost">2015개정 교육과정 · 현 고2 예시</div>
+    </div>
+  </header>
 
-<div class="tabs">
-  <button class="active" onclick="openTab(0)">교과 성취 추이</button>
-  <button onclick="openTab(1)">과목 이수 현황</button>
-  <button onclick="openTab(2)">세부능력 및 특기사항</button>
-  <button onclick="openTab(3)">창의적 체험활동</button>
-  <button onclick="openTab(4)">입학사정관 평가</button>
-</div>
+  <main class="layout">
+    <!-- LEFT -->
+    <section class="panel panel--left">
+      <div class="panel__header">
+        <div class="panel__title">학생부 탐색</div>
+        <div class="panel__desc">좌측에서 항목을 클릭하면 중앙/우측에 즉시 반영됩니다.</div>
+      </div>
 
-<!-- 1. 교과 성취 -->
-<div class="content active">
-  <div class="card">
-    <h3>학기별 교과 성취 추이 (국영수)</h3>
-    <canvas id="gradeChart"></canvas>
-  </div>
+      <div class="card">
+        <div class="card__title">교과 성적 추이 선택</div>
 
-  <div class="card">
-    <h3>학기별 등급 표</h3>
-    <table>
-      <tr><th>학기</th><th>국영수 평균</th><th>계열 평균</th></tr>
-      <tr><td>1-1</td><td>2.6</td><td>3.4</td></tr>
-      <tr><td>1-2</td><td>2.3</td><td>3.2</td></tr>
-      <tr><td>2-1</td><td>2.0</td><td>3.1</td></tr>
-      <tr><td>2-2</td><td>1.8</td><td>3.0</td></tr>
-    </table>
-  </div>
-</div>
+        <div class="segmented" id="comboButtons"></div>
 
-<!-- 2. 과목 이수 -->
-<div class="content">
-  <div class="card">
-    <h3>전공 관련 과목 이수 현황</h3>
-    <table>
-      <tr><th>과목</th><th>이수 여부</th></tr>
-      <tr><td>미적분</td><td><span class="badge ok">이수</span></td></tr>
-      <tr><td>확률과 통계</td><td><span class="badge ok">이수</span></td></tr>
-      <tr><td>기하</td><td><span class="badge warn">미이수</span></td></tr>
-    </table>
-  </div>
-</div>
+        <details class="custom" open>
+          <summary>사용자 조합(체크로 커스텀)</summary>
+          <div class="custom__grid" id="customSubjects"></div>
+          <div class="custom__row">
+            <button class="btn btn--primary" id="applyCustom">커스텀 적용</button>
+            <button class="btn" id="resetCustom">초기화</button>
+          </div>
+          <div class="hint">예: “수학Ⅰ+수학Ⅱ+확통” 또는 “국어+영어+사회문화”처럼 조합 가능</div>
+        </details>
+      </div>
 
-<!-- 3. 세특 -->
-<div class="content">
-  <div class="card">
-    <h3>수학 세부능력 및 특기사항 (샘플)</h3>
-    <p>
-      함수의 증가·감소 조건을 그래프와 미분 개념을 활용해 분석함.
-      실생활 자료를 적용한 탐구 보고서에서 논리적 전개가 돋보였으며,
-      추가 심화 문제를 자발적으로 탐색하는 태도를 보임.
-    </p>
-    <h4>행동발달 종합 의견</h4>
-    <p>
-      협업 활동에서 토론을 주도하며 타인의 의견을 조율하는 태도가 우수함.
-    </p>
-  </div>
-</div>
+      <div class="card">
+        <div class="card__title">세부능력 및 특기사항(2015개정 · 샘플)</div>
+        <div class="list" id="sepecList"></div>
+      </div>
 
-<!-- 4. 창체 -->
-<div class="content">
-  <div class="card">
-    <h3>자율활동</h3>
-    <p>교내 수학 탐구 발표대회 기획 및 운영 참여</p>
-  </div>
-  <div class="card">
-    <h3>동아리활동</h3>
-    <p>수학·과학 융합 동아리에서 모델링 프로젝트 수행</p>
-  </div>
-  <div class="card">
-    <h3>진로활동</h3>
-    <p>공학계열 진로 탐색 후 교과 선택 전략 수립</p>
-  </div>
-</div>
+      <div class="card">
+        <div class="card__title">창의적 체험활동(샘플)</div>
+        <div class="tabs" id="caTabs">
+          <button class="tab active" data-ca="autonomous">자율활동</button>
+          <button class="tab" data-ca="club">동아리활동</button>
+          <button class="tab" data-ca="career">진로활동</button>
+        </div>
+        <div class="ca" id="caContent"></div>
+      </div>
 
-<!-- 5. 평가 -->
-<div class="content">
-  <div class="card">
-    <h3>입학사정관 평가</h3>
-    <p>학업역량:
-      <input type="radio" name="a">우수
-      <input type="radio" name="a">보통
-      <input type="radio" name="a">미흡
-    </p>
-    <p>진로역량:
-      <input type="radio" name="b">우수
-      <input type="radio" name="b">보통
-      <input type="radio" name="b">미흡
-    </p>
-    <textarea placeholder="종합 평가 의견을 입력하세요."></textarea>
-  </div>
-</div>
+      <div class="card">
+        <div class="card__title">행동특성 및 종합의견(샘플)</div>
+        <div class="note" id="behaviorNote"></div>
+      </div>
+    </section>
 
-<script>
-function openTab(n) {
-  document.querySelectorAll('.content').forEach((c,i)=>{
-    c.classList.toggle('active', i===n);
-  });
-  document.querySelectorAll('.tabs button').forEach((b,i)=>{
-    b.classList.toggle('active', i===n);
-  });
-}
+    <!-- CENTER -->
+    <section class="panel panel--center">
+      <div class="panel__header">
+        <div class="panel__title">성취 추이 · 비교 분석</div>
+        <div class="panel__desc">그래프 + 표 + 이수 현황을 한 화면에서 확인</div>
+      </div>
 
-new Chart(document.getElementById("gradeChart"), {
-  type: "line",
-  data: {
-    labels: ["1-1","1-2","2-1","2-2"],
-    datasets: [{
-      label: "국영수 평균",
-      data: [2.6,2.3,2.0,1.8],
-      borderColor: "#4e4376",
-      fill: false
-    }]
-  }
-});
-</script>
+      <div class="grid2">
+        <div class="card">
+          <div class="card__title card__title--row">
+            <span id="chartTitle">학기별 등급 추이</span>
+            <div class="rightTools">
+              <span class="badge" id="activeComboBadge"></span>
+            </div>
+          </div>
+          <canvas id="trendChart" height="120"></canvas>
+          <div class="miniLegend">
+            <span><i class="dot dot--main"></i> 학생(선택 조합)</span>
+            <span><i class="dot dot--ref"></i> 유사집단 평균(예시)</span>
+          </div>
+        </div>
 
+        <div class="card">
+          <div class="card__title">학기별 수치 표</div>
+          <div class="tableWrap">
+            <table class="table" id="trendTable"></table>
+          </div>
+          <div class="hint">※ 등급은 낮을수록 우수(1등급이 가장 우수) · 평균대비(+)는 더 우수함을 의미하도록 예시 구성</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__title card__title--row">
+          <span>과목 이수 현황(전공권장 체크)</span>
+          <span class="small">※ 샘플: 공학계열 지원 가정</span>
+        </div>
+        <div class="tableWrap">
+          <table class="table" id="courseTable"></table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__title">세특 미리보기(클릭한 과목)</div>
+        <div class="note" id="sepecPreview"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT -->
+    <section class="panel panel--right">
+      <div class="panel__header">
+        <div class="panel__title">입학사정관 평가</div>
+        <div class="panel__desc">클릭·체크·의견 작성 → “평가받는 흐름” 체감</div>
+      </div>
+
+      <div class="card">
+        <div class="card__title">정량 요약(예시)</div>
+        <div class="kpis" id="kpiBar"></div>
+      </div>
+
+      <div class="card">
+        <div class="card__title">역량 평가(클릭)</div>
+
+        <div class="rubric">
+          <div class="rubric__row">
+            <div class="rubric__label">학업역량</div>
+            <div class="rubric__opts" data-score="academic">
+              <button class="chip" data-v="매우우수">매우우수</button>
+              <button class="chip" data-v="우수">우수</button>
+              <button class="chip" data-v="보통">보통</button>
+              <button class="chip" data-v="미흡">미흡</button>
+            </div>
+          </div>
+
+          <div class="rubric__row">
+            <div class="rubric__label">진로역량</div>
+            <div class="rubric__opts" data-score="career">
+              <button class="chip" data-v="우수">우수</button>
+              <button class="chip" data-v="보통">보통</button>
+              <button class="chip" data-v="미흡">미흡</button>
+            </div>
+          </div>
+
+          <div class="rubric__row">
+            <div class="rubric__label">공동체역량</div>
+            <div class="rubric__opts" data-score="community">
+              <button class="chip" data-v="우수">우수</button>
+              <button class="chip" data-v="보통">보통</button>
+              <button class="chip" data-v="미흡">미흡</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="risk">
+          <div class="risk__title">위험요소 체크(예시)</div>
+          <label class="check"><input type="checkbox" id="riskFlat" /> 교과 편중 우려</label>
+          <label class="check"><input type="checkbox" id="riskMajor" /> 전공 관련 과목 부족</label>
+          <label class="check"><input type="checkbox" id="riskOneOff" /> 탐구활동 단발성</label>
+          <label class="check"><input type="checkbox" id="riskCred" /> 서류 신뢰도 의심</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__title card__title--row">
+          <span>평가 의견</span>
+          <div class="rightTools">
+            <button class="btn btn--small" id="btnPhrase1">자동문구1</button>
+            <button class="btn btn--small" id="btnPhrase2">자동문구2</button>
+            <button class="btn btn--small" id="btnPhrase3">자동문구3</button>
+          </div>
+        </div>
+        <textarea class="textarea" id="commentBox" placeholder="사정관 평가 의견을 입력하세요. (샘플 문구 버튼도 활용 가능)"></textarea>
+
+        <div class="actions">
+          <button class="btn" id="btnClear">초기화</button>
+          <button class="btn btn--primary" id="btnSave">저장(로컬)</button>
+        </div>
+        <div class="hint">※ 저장은 브라우저 로컬 저장(localStorage) 기반으로 동작합니다.</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
